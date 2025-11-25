@@ -1,5 +1,6 @@
 # Virtual environment
 venv/
+venv_mfa_jkr
 
 # Excel files
 *.xlsx
