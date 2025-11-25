@@ -1,0 +1,3 @@
+original_parameter,target_parameter,target_region,original_dimension,original_element,target_dimension,target_element,target_dimension,target_element,factor,comment
+BottomUpDemand,FinalDemand,all,Insulation product,Insulation,sector,Building and Construction,polymer,PS-E,0.56,Based on Plastics Europe data
+BottomUpDemand,FinalDemand,all,Insulation product,Insulation,sector,Building and Construction,polymer,PUR,0.44,Based on Plastics Europe data

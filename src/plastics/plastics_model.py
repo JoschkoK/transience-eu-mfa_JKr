@@ -15,6 +15,7 @@ class PlasticsModel:
         self.data_writer = PlasticsDataExporter(
             cfg=self.cfg.visualization,
             do_export=self.cfg.do_export,
+            selected_export=self.cfg.selected_export,
             output_path=self.cfg.output_path,
         )
         self.init_mfa()
@@ -58,5 +59,14 @@ class PlasticsModel:
 
     def run(self):
         self.mfa.compute()
+        logging.info("Model computations completed.")
+
         self.data_writer.export_mfa(mfa=self.mfa)
-        self.data_writer.visualize_results(model=self)
+        
+        logging.info("Exporting flows as dataframes.")
+        flows_as_dataframes = self.mfa.get_flows_as_dataframes(flow_names=self.cfg.selected_export["csv_selected_flows"])
+        
+        #self.data_writer.export_selected_mfa_flows_to_csv(mfa=self.mfa, flow_names=self.cfg.selected_export["csv_selected_flows"])
+        self.data_writer.visualize_results(model=self, flows_dfs=flows_as_dataframes, scenario=self.cfg.scenario)
+
+        return flows_as_dataframes

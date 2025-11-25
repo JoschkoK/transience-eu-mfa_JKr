@@ -38,6 +38,7 @@ class ModelCustomization(EUMFABaseModel):
 
 class PlasticsCustomizationCfg(ModelCustomization):
     
+    model_driven: str = "production"  # options: production, final_demand
     end_use_sectors: str = "all"
     waste_not_for_recycling: list = []
 
@@ -63,7 +64,7 @@ class VehiclesVisualizationCfg(VisualizationCfg):
 
 class PlasticsVisualizationCfg(VisualizationCfg):
 
-    inflow: dict = {"do_visualize": False}
+    outflow: dict = {"do_visualize": False}
 
 class CementTopdownVisualizationCfg(VisualizationCfg):
 
@@ -80,11 +81,14 @@ class CementFlowsVisualizationCfg(VisualizationCfg):
 class GeneralCfg(EUMFABaseModel):
 
     model_class: str
+    scenario: str
+    logging: dict = {"level": "INFO"}
     input_data_path: str
     customization: ModelCustomization
     visualization: VisualizationCfg
     output_path: str
     do_export: dict[str, bool]
+    selected_export: dict = {"csv_selected_flows": []} # list of flow names to export to csv
 
     @classmethod
     def from_model_class(cls, **kwargs) -> "GeneralCfg":
