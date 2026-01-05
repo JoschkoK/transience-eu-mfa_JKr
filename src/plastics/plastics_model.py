@@ -34,6 +34,9 @@ class PlasticsModel:
             "secondary_raw_material": "secondary_raw_materials",
         }
 
+        if self.cfg.customization.prodcom:
+            dimension_map["product"] = f"products_{self.cfg.customization.end_use_sectors}"
+
         dimension_files = {}
         for dimension in self.definition.dimensions:
             dimension_filename = dimension_map[dimension.name]
@@ -63,10 +66,29 @@ class PlasticsModel:
 
         self.data_writer.export_mfa(mfa=self.mfa)
         
+        logging.info("Exporting stock slices to csv.")
+        # Export sliced stocks with age-cohort dimension
+        self.data_writer.export_sliced_stocks_by_age_cohort_to_csv(
+            mfa=self.mfa, 
+            stock_names=self.cfg.selected_export["csv_selected_stocks"], 
+            slice_dicts=self.cfg.selected_export["csv_slice_stocks"])
+        # Export stock slices aggregating age-cohorts
+        self.data_writer.export_sliced_stocks_to_csv(
+            mfa=self.mfa, 
+            stock_names=self.cfg.selected_export["csv_selected_stocks"], 
+            slice_dicts=self.cfg.selected_export["csv_slice_stocks"])
+
         logging.info("Exporting flows as dataframes.")
         flows_as_dataframes = self.mfa.get_flows_as_dataframes(flow_names=self.cfg.selected_export["csv_selected_flows"])
         
+        logging.info("Aggregating flows along age-cohort.")
+        flows_as_dataframes = self.mfa.aggregate_flows_by_age_cohort(flows_as_dataframes)
+        
+        logging.info("Exporting flows to csv.")
         #self.data_writer.export_selected_mfa_flows_to_csv(mfa=self.mfa, flow_names=self.cfg.selected_export["csv_selected_flows"])
+        self.data_writer.export_selected_flows_to_csv(flow_dfs=flows_as_dataframes, flow_names=self.cfg.selected_export["csv_selected_flows"])
+
+        logging.info("Visualizing results.")
         self.data_writer.visualize_results(model=self, flows_dfs=flows_as_dataframes, scenario=self.cfg.scenario)
 
         return flows_as_dataframes
