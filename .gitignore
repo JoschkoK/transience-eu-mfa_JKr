@@ -10,6 +10,12 @@ venv_mfa_jkr
 # Output csv files
 data/*/output/export/flows/
 data/*/output/export/stocks/
+data/
+
+# other local files
+helper_scripts/
+config/plastics_certificates_*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
