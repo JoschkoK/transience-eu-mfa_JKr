@@ -1,0 +1,59 @@
+# general config
+model_class: 'plastics'
+scenario: 'baseline_germany_package_v2'
+
+# logging
+logging:
+  level: 'DEBUG' # options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+# data sources
+
+input_data_path: 'data/baseline_germany_package_v2/input'
+
+# model customization
+customization:
+  model_driven: 'production' # options: production, final_demand
+  lifetime_model_name: 'NormalLifetime'
+  end_use_sectors: 'all' # options: MainSectors, all, ...
+  waste_not_for_recycling: ['landfill', 'incineration']
+
+# visualization
+visualization:
+  inflow:
+    do_visualize: False
+  production:
+    do_visualize: False
+  outflow:
+    do_visualize: False
+  sankey:
+    do_visualize: False
+  dashboard:
+    do_visualize: False
+
+# data export
+output_path: 'data/baseline_germany_package_v2/output'
+do_export:
+  pickle: False
+  csv: False
+selected_export:
+  csv_selected_flows:
+    - 'sysenv => Polymer market'
+    - 'sysenv => Plastics manufacturing'
+    - 'Polymer market => PRIMARY Plastics manufacturing'
+    - 'Polymer market => SECONDARY Plastics manufacturing'
+    #- 'Plastics manufacturing => sysenv'
+    - 'Plastics manufacturing => Plastics market'
+    - 'Plastics market => End use stock'
+    - 'End use stock => Waste collection'
+    - 'Waste collection => Waste sorting'
+    - 'Waste collection => LITTERING sysenv'
+    - 'Waste collection => DEFAULT TREATMENT sysenv'
+    - 'Waste sorting => Sorted waste market'
+    - 'Waste sorting => sysenv'
+    - 'Sorted waste market => Recycling'
+    - 'Recycling => RECYCLATE sysenv'
+    - 'Recycling => LOSSES sysenv'
+  csv_selected_stocks:
+    - 'End use stock'
+  csv_slice_stocks:
+    - 'time': [2020, 2030, 2040, 2050]
