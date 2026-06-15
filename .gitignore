@@ -1,5 +1,6 @@
 # Virtual environment
 venv/
+venv_mfa_jkr
 
 # Excel files
 *.xlsx
@@ -9,6 +10,13 @@ venv/
 # Output csv files
 data/*/output/export/flows/
 data/*/output/export/stocks/
+data/certificates_*
+
+# Helper scripts
+helper_scripts/
+
+# Certain config files
+/config/plastics_certificates_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
