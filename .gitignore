@@ -13,7 +13,7 @@ data/*/output/export/stocks/
 data/certificates_*
 
 # Helper scripts
-helper_scripts/
+#helper_scripts/
 
 # Certain config files
 /config/plastics_certificates_*
