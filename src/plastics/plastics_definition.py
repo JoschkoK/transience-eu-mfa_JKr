@@ -41,8 +41,9 @@ def get_definition(cfg: GeneralCfg):
             fd.FlowDefinition(from_process="Polymer market", to_process="Plastics manufacturing", name_override="Polymer market => PRIMARY Plastics manufacturing", dim_letters=("r", "t", "s", "p", "e")), # F_1_2_Primary: Demand for primary polymers
             fd.FlowDefinition(from_process="Polymer market", to_process="Plastics manufacturing", name_override="Polymer market => SECONDARY Plastics manufacturing", dim_letters=("r", "t", "s", "p", "e")), # F_1_2_Recyclate: Demand for recyclates
             fd.FlowDefinition(from_process="sysenv", to_process="Plastics manufacturing", dim_letters=("r", "t", "s", "p", "e")), # F_0_2_ImportNew: Import of new plastics
-            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", dim_letters=("r", "t", "s", "p", "e")), # F_2_0_ExportNew: Export of new plastics
+            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", name_override="Plastics manufacturing => ExportNew sysenv", dim_letters=("r", "t", "s", "p", "e")), # F_2_0_ExportNew: Export of new plastics
             fd.FlowDefinition(from_process="Plastics manufacturing", to_process="Plastics market", dim_letters=("r", "t", "s", "p", "e")), # F_2_3_NewPlastics: New plastic products
+            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", name_override="Plastics manufacturing => PostIndustrial sysenv", dim_letters=("r", "t", "s", "p", "m", "e")), # F_2_0_PostIndustrial: Post-industrial waste
             fd.FlowDefinition(from_process="Plastics market", to_process="End use stock", dim_letters=("r", "t", "s", "p", "e")), # F_3_4_NewPlastics: New plastic products
             fd.FlowDefinition(from_process="sysenv", to_process="End use stock", dim_letters=("o", "r", "t", "c", "s", "p", "e")), # F_0_4_ImportUsed: Import of used plastic products
             fd.FlowDefinition(from_process="End use stock", to_process="sysenv", dim_letters=("r", "o", "t", "c", "s", "p", "e")), # F_4_0_ExportUsed: Export of used plastic products
@@ -93,6 +94,7 @@ def get_definition(cfg: GeneralCfg):
             fd.ParameterDefinition(name="ExportNew", dim_letters=("r", "o", "t", "s", "p", "e")), # Export of new plastic products
             fd.ParameterDefinition(name="ImportRateNew", dim_letters=("o", "r", "t", "s", "p")), # Import rate of new plastic products
             fd.ParameterDefinition(name="ExportRateNew", dim_letters=("r", "o", "t", "s", "p")), # Export rate of new plastic products
+            fd.ParameterDefinition(name="PostIndustrialCollectionRate", dim_letters=("r", "t", "s", "p", "w", "m")), # Collection rate of post-industrial waste
             fd.ParameterDefinition(name="MarketShare", dim_letters=("r", "o", "t", "s", "p")), # Market shares of regions in new plastics final demand
             fd.ParameterDefinition(name="ImportUsed", dim_letters=("o", "r", "t", "c", "s", "p", "e")), # Import of used plastic products
             fd.ParameterDefinition(name="ExportUsed", dim_letters=("r", "o", "t", "c", "s", "p", "e")), # Export of used plastic products
@@ -118,8 +120,9 @@ def get_definition(cfg: GeneralCfg):
             fd.FlowDefinition(from_process="Polymer market", to_process="Plastics manufacturing", name_override="Polymer market => PRIMARY Plastics manufacturing", dim_letters=("r", "t", "s", "d", "p")), # F_1_2_Primary: Demand for primary polymers
             fd.FlowDefinition(from_process="Polymer market", to_process="Plastics manufacturing", name_override="Polymer market => SECONDARY Plastics manufacturing", dim_letters=("r", "t", "s", "d", "p")), # F_1_2_Recyclate: Demand for recyclates
             fd.FlowDefinition(from_process="sysenv", to_process="Plastics manufacturing", dim_letters=("r", "t", "s", "d", "p")), # F_0_2_ImportNew: Import of new plastics
-            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", dim_letters=("r", "t", "s", "d", "p")), # F_2_0_ExportNew: Export of new plastics
-            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="Plastics market", dim_letters=("r", "t", "s", "d", "p")), # F_2_3_NewPlastics: New plastic products
+            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", name_override="Plastics manufacturing => ExportNew sysenv", dim_letters=("r", "t", "s", "p", "e")), # F_2_0_ExportNew: Export of new plastics
+            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="Plastics market", dim_letters=("r", "t", "s", "p", "e")), # F_2_3_NewPlastics: New plastic products
+            fd.FlowDefinition(from_process="Plastics manufacturing", to_process="sysenv", name_override="Plastics manufacturing => PostIndustrial sysenv", dim_letters=("r", "t", "s", "p", "e")), # F_2_0_PostIndustrial: Post-industrial waste
             fd.FlowDefinition(from_process="Plastics market", to_process="End use stock", dim_letters=("r", "t", "s", "d", "p")), # F_3_4_NewPlastics: New plastic products
             fd.FlowDefinition(from_process="sysenv", to_process="End use stock", dim_letters=("o", "r", "t", "c", "s", "d", "p")), # F_0_4_ImportUsed: Import of used plastic products
             fd.FlowDefinition(from_process="End use stock", to_process="sysenv", dim_letters=("r", "o", "t", "c", "s", "d", "p")), # F_4_0_ExportUsed: Export of used plastic products
@@ -171,6 +174,7 @@ def get_definition(cfg: GeneralCfg):
             fd.ParameterDefinition(name="ExportNew", dim_letters=("r", "o", "t", "s", "d", "p")), # Export of new plastic products
             fd.ParameterDefinition(name="ImportRateNew", dim_letters=("o", "r", "t", "s", "d", "p")), # Import rate of new plastic products
             fd.ParameterDefinition(name="ExportRateNew", dim_letters=("r", "o", "t", "s", "d", "p")), # Export rate of new plastic products
+            fd.ParameterDefinition(name="PostIndustrialCollectionRate", dim_letters=("r", "t", "s", "p")), # Collection rate of post-industrial waste
             fd.ParameterDefinition(name="MarketShare", dim_letters=("r", "o", "t", "s", "d", "p")), # Market shares of regions in new plastics final demand
             fd.ParameterDefinition(name="ImportUsed", dim_letters=("o", "r", "t", "c", "s", "d", "p")), # Import of used plastic products
             fd.ParameterDefinition(name="ExportUsed", dim_letters=("r", "o", "t", "c", "s", "d", "p")), # Export of used plastic products

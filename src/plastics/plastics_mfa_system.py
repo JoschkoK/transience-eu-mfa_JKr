@@ -124,20 +124,23 @@ class PlasticsMFASystem(fd.MFASystem):
                                     yp = np.interp(x, xp, fp)
                                     prm[param].values[r,rr,x,s,p,w] = yp
                             
-        # RecyclingLossRate
+        # RecyclingConversionRate, PostIndustrialCollectionRate
         # Index: rtpw
-        logging.info('Interpolating parameter RecyclingLossRate')
-        for r in np.arange(0,Nr):
-            for s in np.arange(0,Ns):
-                for p in np.arange(0,Np):
-                    for w in np.arange(0,Nw):
-                        for m in np.arange(0,Nm):
 
-                            xp,x = self._prepare_interpolate(prm['RecyclingConversionRate'].values[r,:,s,p,w,m])
-                            if xp is not None:
-                                fp = prm['RecyclingConversionRate'].values[r,xp,s,p,w,m]
-                                yp = np.interp(x, xp, fp)
-                                prm['RecyclingConversionRate'].values[r,x,s,p,w,m] = yp
+        for param in ['RecyclingConversionRate', 'PostIndustrialCollectionRate']:
+
+            logging.info('Interpolating parameter ' + param)
+            for r in np.arange(0,Nr):
+                for s in np.arange(0,Ns):
+                    for p in np.arange(0,Np):
+                        for w in np.arange(0,Nw):
+                            for m in np.arange(0,Nm):
+
+                                xp,x = self._prepare_interpolate(prm[param].values[r,:,s,p,w,m])
+                                if xp is not None:
+                                    fp = prm[param].values[r,xp,s,p,w,m]
+                                    yp = np.interp(x, xp, fp)
+                                    prm[param].values[r,x,s,p,w,m] = yp
 
         logging.info('Those parameters were not interpolated (i.e. must be provided in full):\n \
                         DomesticDemand, ImportNew, ExportNew, ImportUsed, ExportUsed, ImportRateUsed, ExportRateUsed')
@@ -242,19 +245,28 @@ class PlasticsMFASystem(fd.MFASystem):
 
         # Domestic input to manufacturing (primary + secondary)
         aux["DomesticInputManufacturing"] = flw["Polymer market => PRIMARY Plastics manufacturing"] + flw["Polymer market => SECONDARY Plastics manufacturing"] # InputManufacturing_1_2
+
+        # Collection of post-industrial waste and byproducts from the manufacturing process that are recycled back into the polymer market (not entering the stock and not subject to import/export)
+        # Note: this flow is currently implemented as a share of DomesticInputManufacturing that leaves the process-chain  at this point and can be evaluated on its own in the results. 
+        # An alternative would be to implement it as a flow from the manufacturing process to the polymer market and/or to the recyclate flow/market.
+        flw["Plastics manufacturing => PostIndustrial sysenv"][...] = aux["DomesticInputManufacturing"] * prm["PostIndustrialCollectionRate"] # F_2_0_PostIndustrial
+        # Update DomesticInputManufacturing after subtracting post-industrial collection
+        # CAREFUL: this flow is currently not substracted, because the DomesticDemand provided as input to the model is the net output of the production process. If input-based numbers are used this has to be changed.
+        #aux["DomesticInputManufacturing"] = aux["DomesticInputManufacturing"] - flw["Plastics manufacturing => PostIndustrial sysenv"][...] # InputManufacturing_1_2 - PostIndustrialCollection
+
         # Imports: absolute and via rates
         flw["sysenv => Plastics manufacturing"][...] = prm["ImportNew"] + aux["DomesticInputManufacturing"] * prm["ImportRateNew"] # F_0_2_ImportNew
         # Exports: absolute and via rates
-        flw["Plastics manufacturing => sysenv"][...] = aux["DomesticInputManufacturing"] * prm["ExportRateNew"] + prm["ExportNew"] # F_2_0_ExportNew
+        flw["Plastics manufacturing => ExportNew sysenv"][...] = aux["DomesticInputManufacturing"] * prm["ExportRateNew"] + prm["ExportNew"] # F_2_0_ExportNew
         # Sum over all import and export regions to calculate TOTAL imports and exports and NET imports
         # ImportNew_0_2 = np.einsum('Rrtspe->rtspe', Plastics_MFA_System.FlowDict['F_0_2_ImportNew'].Values)
         # ExportNew_2_0 = np.einsum('rRtspe->rtspe', Plastics_MFA_System.FlowDict['F_2_0_ExportNew'].Values)
         if not self.cfg.customization.prodcom:
             aux["ImportNew"] = flw["sysenv => Plastics manufacturing"].sum_to(("r","t","s","p","e"))
-            aux["ExportNew"] = flw["Plastics manufacturing => sysenv"].sum_to(("r","t","s","p","e"))
+            aux["ExportNew"] = flw["Plastics manufacturing => ExportNew sysenv"].sum_to(("r","t","s","p","e"))
         else:
             aux["ImportNew"] = flw["sysenv => Plastics manufacturing"].sum_to(("r","t","s","d","p"))
-            aux["ExportNew"] = flw["Plastics manufacturing => sysenv"].sum_to(("r","t","s","d","p"))
+            aux["ExportNew"] = flw["Plastics manufacturing => ExportNew sysenv"].sum_to(("r","t","s","d","p"))
         aux["NetImport"] = aux["ImportNew"] - aux["ExportNew"]
         # Mass balance equation for plastics manufacturing
         flw["Plastics manufacturing => Plastics market"][...] = aux["DomesticInputManufacturing"] + aux["NetImport"] # F_2_3_NewPlastics
@@ -318,15 +330,23 @@ class PlasticsMFASystem(fd.MFASystem):
         # Imports: absolute
         flw["sysenv => Plastics manufacturing"][...] = prm["ImportNew"] # F_0_2_ImportNew
         # Exports: absolute
-        flw["Plastics manufacturing => sysenv"][...] = prm["ExportNew"] # F_2_0_ExportNew
+        flw["Plastics manufacturing => ExportNew sysenv"][...] = prm["ExportNew"] # F_2_0_ExportNew
 
         # Sum over all import and export regions to calculate TOTAL imports and exports and NET imports
         aux["ImportNew"] = flw["sysenv => Plastics manufacturing"].sum_to(("r","t","s","p","e"))
-        aux["ExportNew"] = flw["Plastics manufacturing => sysenv"].sum_to(("r","t","s","p","e"))
+        aux["ExportNew"] = flw["Plastics manufacturing => ExportNew sysenv"].sum_to(("r","t","s","p","e"))
         aux["NetImport"] = aux["ImportNew"] - aux["ExportNew"]
 
         # Mass balance equation for plastics manufacturing
         aux["DomesticInputManufacturing"][...] = flw["Plastics manufacturing => Plastics market"][...] - aux["NetImport"] # F_2_3_NewPlastics
+
+        # Collection of post-industrial waste and byproducts from the manufacturing process that are recycled back into the polymer market (not entering the stock and not subject to import/export)
+        # Note: this flow is currently implemented as a share of DomesticInputManufacturing that leaves the process-chain  at this point and can be evaluated on its own in the results. 
+        # An alternative would be to implement it as a flow from the manufacturing process to the polymer market and/or to the recyclate flow/market.
+        flw["Plastics manufacturing => PostIndustrial sysenv"][...] = aux["DomesticInputManufacturing"] * prm["PostIndustrialCollectionRate"] # F_2_0_PostIndustrial
+        # Update DomesticInputManufacturing after subtracting post-industrial collection
+        # CAREFUL: this flow is currently not substracted, because the DomesticDemand provided as input to the model is the net output of the production process. If input-based numbers are used this has to be changed.
+        #aux["DomesticInputManufacturing"] = aux["DomesticInputManufacturing"] - flw["Plastics manufacturing => PostIndustrial sysenv"][...] # InputManufacturing_1_2 - PostIndustrialCollection
 
         ### POLYMER MARKET
         logging.info("mfa_system - POLYMER MARKET")
