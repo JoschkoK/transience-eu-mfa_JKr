@@ -12,7 +12,7 @@ args = parser.parse_args()
 
 # Scenario name
 if args.scenario is None:
-    scenario = 'baseline'
+    scenario = 'certificates_baseline_germany_package_v4'
 else:
     scenario = args.scenario
 

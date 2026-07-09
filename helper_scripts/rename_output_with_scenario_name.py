@@ -6,21 +6,23 @@ import shutil
 
 # Parameters
 module = 'plastics'  # Change this to your module name
-scenario_name = 'certificates_baseline'  # Change this to your scenario name
-file_prefix = 'baseline' # If you want to rename the files with a specific prefix, set it here. Otherwise, it will use the scenario name as prefix.
+scenario_name = 'certificates_baseline_germany_package_v3'  # Change this to your scenario name
+file_prefix = 'v3' # If you want to rename the files with a specific prefix, set it here. Otherwise, it will use the scenario name as prefix.
 new_output_dir = os.path.join('data', scenario_name + '_' + module, 'output', 'export', 'flows_renamed') # If you want to save the renamed files in a different directory, set it here. Otherwise, it will save them in a new directory next to the original folder.
 
 if file_prefix is None:
     file_prefix = scenario_name
    
 if new_output_dir is None:
-    new_output_dir = os.path.join('data', scenario_name + '_' + module, 'output', 'export', 'flows')
+    new_output_dir = os.path.join('data', scenario_name + '_' + module, 'output', 'export', 'flows_renamed')
 
 # Define the original output directory
 output_dir = os.path.join('data', scenario_name + '_' + module, 'output', 'export', 'flows')
 
-# Create the new output directory if it doesn't exist
+# Create the new output directory if it doesn't exist and remove old files if it does exist
 os.makedirs(new_output_dir, exist_ok=True)
+for filename in os.listdir(new_output_dir):
+    os.remove(os.path.join(new_output_dir, filename))
 
 # Loop through the files in the original output directory
 for filename in os.listdir(output_dir):
